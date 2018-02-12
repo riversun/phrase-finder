@@ -8,8 +8,7 @@
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	<name>phrase-finder</name>
-	<description>
-	</description>
+	<description>Find out phrases from text</description>
 	<url>https://github.com/riversun/phrase-finder</url>
 
 	<licenses>
