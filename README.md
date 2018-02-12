@@ -51,3 +51,13 @@ PhrasefResult [analysisMode=HANKAKU_ALPHABET_ONLY, isHit=true, numOfHits=1, hint
     UNKNOWN
   };
  ```
+
+# フレーズの切れ目の判定方法
+
+- 半角で構成されるフレーズの場合
+
+<img src="https://riversun.github.io/img/phrasef/anamode00.png">
+
+- 全角で構成されるフレーズの場合
+
+<img src="https://riversun.github.io/img/phrasef/anamode01.png">
