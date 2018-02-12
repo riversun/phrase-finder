@@ -2,6 +2,9 @@
 - 文書の中から、特定の文字列をフレーズ検索するユーティリティ  
 - 語のつながりを抽出するため、 String#indexOfやString#containsでは不可能だったフレーズ単位での検索が実行できる  
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.riversun/phrase-finder/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.riversun/phrase-finder)
+
+
 It is licensed under [MIT](https://opensource.org/licenses/MIT).
 
 # 例
@@ -34,6 +37,19 @@ public class Example2 {
 ```
 PhrasefResult [analysisMode=HANKAKU_ALPHABET_ONLY, isHit=true, numOfHits=1, hint=I'm a freelancer but I'm not [free]., posList=[PhrasePos [startIndex=29, endIndex=33]]]
 
+```
+
+
+#ダウンロード
+
+## maven
+- You can add dependencies to maven pom.xml file.
+```xml
+<dependency>
+  <groupId>org.riversun</groupId>
+  <artifactId>phrase-finder</artifactId>
+  <version>1.0.0</version>
+</dependency>
 ```
 
 # 対応しているフレーズの種類
