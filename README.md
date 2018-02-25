@@ -48,7 +48,7 @@ PhrasefResult [analysisMode=HANKAKU_ALPHABET_ONLY, isHit=true, numOfHits=1, hint
 <dependency>
   <groupId>org.riversun</groupId>
   <artifactId>phrase-finder</artifactId>
-  <version>1.0.0</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 
