@@ -23,7 +23,9 @@
 package org.riversun.phrasef;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * テキストから独立したフレーズを検索するユーティリティ
@@ -32,6 +34,45 @@ import java.util.List;
  *
  */
 public class PhraseFinder {
+
+  private static final String DEFAULT_HINT_PREFIX = "[";
+  private static final String DEFAULT_HINT_SUFFIX = "]";
+
+  private String mHintPrefix = DEFAULT_HINT_PREFIX;
+  private String mHintSuffix = DEFAULT_HINT_SUFFIX;
+
+  /**
+   * テキストから独立したフレーズを検索する
+   * （複数のフレーズを同時に解析する）
+   * 
+   * @param srcText
+   * @param phrases
+   * @return
+   */
+  public PhrasefResultSet findPhrases(String srcText, List<String> phrases) {
+
+    final PhrasefResultSet resultSet = new PhrasefResultSet();
+
+    final List<PhrasefResult> prList = new ArrayList<PhrasefResult>();
+    String srcTextUpdated = srcText;
+    for (String phrase : phrases) {
+
+      PhrasefResult pr = findPhrase(srcText, phrase);
+      prList.add(pr);
+      resultSet.numOfHits += pr.numOfHits;
+      resultSet.isHit |= pr.isHit;
+      resultSet.phraseResultMap.put(phrase, pr);
+
+      // hintを構成するために、再度findPhraseを実施する（効率はよくない）
+      final PhrasefResult resultForHint = findPhrase(srcTextUpdated, phrase);
+      srcTextUpdated = resultForHint.hint;
+
+    }
+
+    resultSet.hint = srcTextUpdated;
+
+    return resultSet;
+  }
 
   /**
    * テキストから独立したフレーズを検索する
@@ -43,6 +84,7 @@ public class PhraseFinder {
   public PhrasefResult findPhrase(String srcText, String phrase) {
 
     final PhrasefResult result = new PhrasefResult();
+    result.phrase = phrase;
     result.posList = new ArrayList<PhrasePos>();
 
     // 分析モード判定
@@ -112,7 +154,7 @@ public class PhraseFinder {
         result.posList.add(pos);
 
         // 独立したフレーズとして認識された部分をカッコで囲みデコレーションする
-        sbHint.append("[" + phrase + "]");
+        sbHint.append(mHintPrefix + phrase + mHintSuffix);
       } else {
         sbHint.append(phrase);
       }
@@ -218,6 +260,34 @@ public class PhraseFinder {
   }
 
   /**
+   * 処理結果のhintに表示されるカッコ文字列を指定する
+   * 
+   * @param prefix
+   * @param suffix
+   * @return
+   */
+  public PhraseFinder setHintBrace(String prefix, String suffix) {
+    if (prefix != null) {
+      mHintPrefix = prefix;
+    }
+    if (suffix != null) {
+      mHintSuffix = suffix;
+    }
+    return PhraseFinder.this;
+  }
+
+  /**
+   * 処理結果のhintに表示されるカッコ文字列をデフォルトに戻す
+   * 
+   * @return
+   */
+  public PhraseFinder resetHintBrace() {
+    mHintPrefix = DEFAULT_HINT_PREFIX;
+    mHintSuffix = DEFAULT_HINT_SUFFIX;
+    return PhraseFinder.this;
+  }
+
+  /**
    * 分析モード
    */
   public enum PhraseAnalysisMode {
@@ -231,10 +301,28 @@ public class PhraseFinder {
     UNKNOWN
   };
 
+  public static class PhrasefResultSet {
+    public boolean isHit;
+    public int numOfHits;
+    public String hint;
+    public final Map<String, PhrasefResult> phraseResultMap = new LinkedHashMap<String, PhrasefResult>();
+
+    @Override
+    public String toString() {
+      return "PhrasefResultSet [isHit=" + isHit + ", numOfHits=" + numOfHits + ", hint=" + hint + ", phraseResultMap=" + phraseResultMap + "]";
+    }
+
+  }
+
   /**
    * 分析結果
    */
   public static class PhrasefResult {
+
+    /**
+     * 対象となった文字列（フレーズ）
+     */
+    public String phrase;
 
     /**
      * テキスト分析モード
@@ -263,7 +351,8 @@ public class PhraseFinder {
 
     @Override
     public String toString() {
-      return "PhrasefResult [analysisMode=" + analysisMode + ", isHit=" + isHit + ", numOfHits=" + numOfHits + ", hint=" + hint + ", posList=" + posList + "]";
+      return "PhrasefResult [phrase=" + phrase + ", analysisMode=" + analysisMode + ", isHit=" + isHit + ", numOfHits=" + numOfHits + ", hint=" + hint
+          + ", posList=" + posList + "]";
     }
 
   }

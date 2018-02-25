@@ -2,13 +2,19 @@ package org.riversun.phrasef;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.riversun.phrasef.PhraseFinder.PhraseAnalysisMode;
 import org.riversun.phrasef.PhraseFinder.PhrasefResult;
+import org.riversun.phrasef.PhraseFinder.PhrasefResultSet;
 
 /**
  * Test for Phrase finder class <br>
@@ -236,6 +242,44 @@ public class TestPhraseFinder {
     assertTrue(result.isHit);
     assertEquals(1, result.numOfHits);
     assertEquals(0, result.posList.get(0).startIndex);
+
+  }
+
+  @Test
+  public void test_findPhrases() throws Exception {
+    // テストの期待動作：同時に複数のフレーズ検索を実施できるfindPhrasesメソッドを実施する
+    final String TEXT = "これから仮想通貨として期待できるのはビットコインよりもむしろビットコインキャッシュであろう。ただ、基盤としてビットコインが消えることは無い。";
+
+    final List<String> SEARCH_PHRASES = new ArrayList<>(Arrays.asList("ビットコイン", "ビットコインキャッシュ"));
+
+    PhrasefResultSet resultSet = obj.findPhrases(TEXT, SEARCH_PHRASES);
+
+    assertTrue(resultSet.isHit);
+    assertEquals(3, resultSet.numOfHits);
+    assertEquals("これから仮想通貨として期待できるのは[ビットコイン]よりもむしろ[ビットコインキャッシュ]であろう。ただ、基盤として[ビットコイン]が消えることは無い。", resultSet.hint);
+
+    // 個々のフレーズに対するPhraseResultがphraseResultMapに格納される。
+    // (キー：フレーズ、値：PhraseResultとなる)
+    assertNotNull(resultSet.phraseResultMap);
+
+    // 「ビットコイン」と「ビットコインキャッシュ」の２つのフレーズぶんのphraseResultMapが格納される
+    assertEquals(2, resultSet.phraseResultMap.size());
+
+  }
+
+  @Test
+  public void test_setPrefix_resetPrefix() throws Exception {
+    // テストの期待動作：ヒントでフレーズ部分を示すカッコを変更し、またリセットする
+    final String TEXT = "これから仮想通貨として期待できるのはビットコインよりもむしろビットコインキャッシュであろう。ただ、基盤としてビットコインが消えることは無い。";
+    final List<String> SEARCH_PHRASES = new ArrayList<>(Arrays.asList("ビットコイン", "ビットコインキャッシュ"));
+
+    obj.setHintBrace("【", "】");
+    PhrasefResultSet resultSet1 = obj.findPhrases(TEXT, SEARCH_PHRASES);
+    assertEquals("これから仮想通貨として期待できるのは【ビットコイン】よりもむしろ【ビットコインキャッシュ】であろう。ただ、基盤として【ビットコイン】が消えることは無い。", resultSet1.hint);
+
+    obj.resetHintBrace();
+    PhrasefResultSet resultSet2 = obj.findPhrases(TEXT, SEARCH_PHRASES);
+    assertEquals("これから仮想通貨として期待できるのは[ビットコイン]よりもむしろ[ビットコインキャッシュ]であろう。ただ、基盤として[ビットコイン]が消えることは無い。", resultSet2.hint);
 
   }
 }
