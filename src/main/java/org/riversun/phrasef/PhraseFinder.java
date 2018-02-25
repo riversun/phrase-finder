@@ -154,7 +154,19 @@ public class PhraseFinder {
         result.posList.add(pos);
 
         // 独立したフレーズとして認識された部分をカッコで囲みデコレーションする
-        sbHint.append(mHintPrefix + phrase + mHintSuffix);
+        if (mHintListener == null) {
+          sbHint.append(mHintPrefix + phrase + mHintSuffix);
+        } else {
+          final HintContent hc = new HintContent();
+          hc.hintPrefix = mHintPrefix;
+          hc.hintSuffix = mHintSuffix;
+          hc.phrase = phrase;
+
+          final HintContent nhc = mHintListener.onPhraseFound(hc);
+          sbHint.append(nhc.hintPrefix + nhc.phrase + nhc.hintSuffix);
+          sbHint.append(nhc.additionalInfo != null ? nhc.additionalInfo : "");
+
+        }
       } else {
         sbHint.append(phrase);
       }
@@ -167,6 +179,28 @@ public class PhraseFinder {
     result.hint = sbHint.toString();
 
     return result;
+  }
+
+  private HintListener mHintListener = null;
+
+  public void setHintListener(HintListener listener) {
+    mHintListener = listener;
+  }
+
+  public static class HintContent {
+    public String hintPrefix;
+    public String hintSuffix;
+    public String phrase;
+    public String additionalInfo;
+
+    @Override
+    public String toString() {
+      return "HintContent [hintPrefix=" + hintPrefix + ", hintSuffix=" + hintSuffix + ", phrase=" + phrase + ", additionalInfo=" + additionalInfo + "]";
+    }
+  }
+
+  public static interface HintListener {
+    public HintContent onPhraseFound(HintContent hint);
   }
 
   /**

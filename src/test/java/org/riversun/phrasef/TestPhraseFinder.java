@@ -12,6 +12,8 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import org.riversun.phrasef.PhraseFinder.HintContent;
+import org.riversun.phrasef.PhraseFinder.HintListener;
 import org.riversun.phrasef.PhraseFinder.PhraseAnalysisMode;
 import org.riversun.phrasef.PhraseFinder.PhrasefResult;
 import org.riversun.phrasef.PhraseFinder.PhrasefResultSet;
@@ -280,6 +282,30 @@ public class TestPhraseFinder {
     obj.resetHintBrace();
     PhrasefResultSet resultSet2 = obj.findPhrases(TEXT, SEARCH_PHRASES);
     assertEquals("これから仮想通貨として期待できるのは[ビットコイン]よりもむしろ[ビットコインキャッシュ]であろう。ただ、基盤として[ビットコイン]が消えることは無い。", resultSet2.hint);
+
+  }
+
+  @Test
+  public void test_setPrefix_setHintListener() throws Exception {
+
+    // テストの期待動作：ヒントの書式を設定する
+    final String TEXT = "これから仮想通貨として期待できるのはビットコインよりもむしろビットコインキャッシュであろう。ただ、基盤としてビットコインが消えることは無い。";
+    final List<String> SEARCH_PHRASES = new ArrayList<>(Arrays.asList("ビットコイン", "ビットコインキャッシュ"));
+
+    obj.setHintListener(new HintListener() {
+
+      @Override
+      public HintContent onPhraseFound(HintContent hint) {
+        hint.hintPrefix = "★前★";
+        hint.hintSuffix = "★後★";
+        hint.additionalInfo = "(SOMETHING)";
+        return hint;
+      }
+    });
+    PhrasefResultSet resultSet = obj.findPhrases(TEXT, SEARCH_PHRASES);
+    assertEquals("これから仮想通貨として期待できるのは★前★ビットコイン★後★(SOMETHING)よりもむしろ★前★ビットコインキャッシュ★後★(SOMETHING)であろう。ただ、基盤として★前★ビットコイン★後★(SOMETHING)が消えることは無い。", resultSet.hint);
+    // 解除
+    obj.setHintListener(null);
 
   }
 }
